@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch API with Search and Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 10px auto;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #responseTable {
+            display: none;
+        }
+
+        #noResult {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Fetch API Data from URL</h1>
+
+    <!-- Input untuk URL API -->
+    <input type="text" id="searchInput" placeholder="Enter API URL (e.g., https://jsonplaceholder.typicode.com/posts)">
+
+    <!-- Tombol untuk memulai pencarian -->
+    <button id="fetchData">Fetch Data</button>
+
+    <h2>Response:</h2>
+
+    <!-- Tabel untuk menampilkan hasil -->
+    <table id="responseTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Body</th>
+                <th>UserID</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+
+    <p id="noResult">No data found. Please check the URL and try again.</p>
+
+    <script>
+        const table = document.getElementById('responseTable');
+        const tableBody = document.getElementById('tableBody');
+        const searchInput = document.getElementById('searchInput');
+        const noResult = document.getElementById('noResult');
+        const fetchDataButton = document.getElementById('fetchData');
+
+        // Function to display response in table
+        function displayInTable(data) {
+            table.style.display = 'table'; // Show the table
+            tableBody.innerHTML = ''; // Clear existing table rows
+
+            // If data is an array (e.g., multiple posts), iterate through each item
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    const row = `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${item.title}</td>
+                            <td>${item.body}</td>
+                            <td>${item.userId}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                // If data is a single object (e.g., single post)
+                const row = `
+                    <tr>
+                        <td>${data.id}</td>
+                        <td>${data.title}</td>
+                        <td>${data.body}</td>
+                        <td>${data.userId}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            }
+        }
+
+        // Function to fetch data from URL input
+        function fetchDataFromUrl(url) {
+            fetch(url)
+              .then((response) => {
+                  if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.json();
+              })
+              .then((json) => {
+                  displayInTable(json);
+                  noResult.style.display = 'none'; // Hide no result message
+              })
+              .catch((error) => {
+                  console.error('There was a problem with the fetch operation:', error);
+                  table.style.display = 'none'; // Hide the table
+                  noResult.style.display = 'block'; // Show no result message
+              });
+        }
+
+        // Event listener for fetch button
+        fetchDataButton.addEventListener('click', () => {
+            const url = searchInput.value.trim();
+            if (url) {
+                fetchDataFromUrl(url);
+            } else {
+                alert('Please enter a valid API URL.');
+            }
+        });
+    </script>
+</body>
+</html>
